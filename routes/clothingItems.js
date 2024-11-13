@@ -1,5 +1,8 @@
 const router = require('express').Router();
-router.get("/", ()=> console.log("GET items"));
-router.post("/:userId", ()=> console.log("POST items"));
-router.delete("/", ()=> console.log("DELETE items by _ID"));
+const {createItem,getItem,deleteItem, updateItem}= require("../controllers/clothingItems");
+//Router paths
+router.get("/", createItem);
+router.post("/", getItem);
+router.put("/:itemId", updateItem);
+router.delete("/:itemId", deleteItem);
 module.exports = router;
