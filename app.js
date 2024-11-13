@@ -6,7 +6,7 @@ const app = express();
 
 const { PORT = 3001 } = process.env;
 
-const mainRouter = require('./routes/index');
+const mainRouter = require('./routes/index').default;
 
 //DB connection
 mongoose.connect('mongodb://localhost:27017/wtwr_db').then(()=>{
@@ -20,3 +20,8 @@ app.listen(PORT,()=>{
 app.use(express.json());
 app.use('/',mainRouter);
 
+// require user
+app.use((req,res)=> req.user = {
+  _id:""
+});
+module.exports = app

@@ -28,10 +28,19 @@ const updateItem = (req, res) => {
   items
     .findByIdAndUpdate(itemId, { $set: { imageUrl } })
     .orFail()
-    .then((item) => res.status(200).send({ data: item })).catch((e)=>res.status(500).send({message:"Error from Updateitem",e}))
+    .then((item) => res.status(200).send({ data: item }))
+    .catch((e) =>
+      res.status(500).send({ message: "Error from Updateitem", e })
+    );
 };
 
 const deleteItem = (req, res) => {
-  items.findByIdAndDelete(itemId).orFail().then((item)=>res.status(204).send({})).catch((e)=>res.status(500).send({message:"error from deleteItem",e}))
+  items
+    .findByIdAndDelete(itemId)
+    .orFail()
+    .then((item) => res.status(204).send({}))
+    .catch((e) =>
+      res.status(500).send({ message: "error from deleteItem", e })
+    );
 };
 module.exports = { createItem, getItem, deleteItem, updateItem };
