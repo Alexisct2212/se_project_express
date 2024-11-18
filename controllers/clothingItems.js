@@ -1,4 +1,5 @@
 const items = require("../models/clothingItem");
+const { BAD_REQUEST_STATUS_CODE, REQUEST_NOT_FOUND, DEFAULT_ERROR } = require("../utils/erros");
 //
 const createItem = (req, res) => {
   const { name, weather, imageUrl } = req.body;
@@ -10,7 +11,7 @@ const createItem = (req, res) => {
       res.send({ data: item });
     })
     .catch((e) => {
-      res.status(500).send({ message: "error from createIem", e });
+      res.status(DEFAULT_ERROR).send({ message: "error from createIem", e });
     });
 };
 const getItem = (req, res) => {
@@ -18,19 +19,19 @@ const getItem = (req, res) => {
     .find({})
     .then((items) => res.status(200).send(items))
     .catch((e) => {
-      res.status(500).send({ message: "get Items Failed", e });
+      res.status(DEFAULT_ERROR).send({ message: "get Items Failed", e });
     });
 };
-const updateItem = (req, res) => {
-  const { itemId } = req.params;
-  const { imageUrl } = req.body;
-  console.log(itemId, imageUrl);
+
+const updatelike = (req, res) => {
   items
-    .findByIdAndUpdate(itemId, { $set: { imageUrl } })
+    .findByIdAndUpdate(req.params.itemId,
+      {$addToSet:{likes:req.user._id}},
+      {new:True},)
     .orFail()
     .then((item) => res.status(200).send({ data: item }))
     .catch((e) =>
-      res.status(500).send({ message: "Error from Updateitem", e })
+      res.status(DEFAULT_ERROR).send({ message: "Error from UpdateLike", e })
     );
 };
 
@@ -40,7 +41,18 @@ const deleteItem = (req, res) => {
     .orFail()
     .then((item) => res.status(204).send({}))
     .catch((e) =>
-      res.status(500).send({ message: "error from deleteItem", e })
+      res.status(DEFAULT_ERROR).send({ message: "error from deleteItem", e })
     );
 };
-module.exports = { createItem, getItem, deleteItem, updateItem };
+const deleteLike = (req, res) => {
+  items
+    .findByIdAndDelete(req.params.itemId,
+      { $pull: { likes: req.user._id } },
+      { new: true },)
+    .orFail()
+    .then((item) => res.status(204).send({}))
+    .catch((e) =>
+      res.status(DEFAULT_ERROR).send({ message: "error from deleteLike", e })
+    );
+};
+module.exports = { createItem, getItem, deleteItem, updatelike,deleteLike };
