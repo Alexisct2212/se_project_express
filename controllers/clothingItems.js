@@ -27,7 +27,7 @@ const updatelike = (req, res) => {
   items
     .findByIdAndUpdate(req.params.itemId,
       {$addToSet:{likes:req.user._id}},
-      {new:True},)
+      {new:true},)
     .orFail()
     .then((item) => res.status(200).send({ data: item }))
     .catch((e) =>
