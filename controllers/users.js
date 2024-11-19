@@ -4,7 +4,7 @@ const { BAD_REQUEST_STATUS_CODE, REQUEST_NOT_FOUND, DEFAULT_ERROR } = require(".
 const getUsers = (req, res) => {
   user
     .find({})
-    .then((users) => res.status(200).res.send(users))
+    .then((users) => res.status(200).send(users))
     .catch((err) => {
       console.log(err);
       res.status(DEFAULT_ERROR).send({ message: DEFAULT_ERROR.message });
@@ -24,9 +24,9 @@ const CreateUser = (req, res) => {
     });
 };
 const getUser = (req, res) => {
-  const { userId } = req.params;
+  const { _id } = req.params;
   user
-    .findById(userId)
+    .findById(_id)
     .then((user) => res.status(200).send(user))
     .catch((err) => {
       console.error(err);

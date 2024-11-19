@@ -36,6 +36,7 @@ const updatelike = (req, res) => {
 };
 
 const deleteItem = (req, res) => {
+  const {itemId} = req.params;
   items
     .findByIdAndDelete(itemId)
     .orFail()
