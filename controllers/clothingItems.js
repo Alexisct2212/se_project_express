@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const items = require("../models/clothingItem");
 const { BAD_REQUEST_STATUS_CODE, REQUEST_NOT_FOUND, DEFAULT_ERROR } = require("../utils/erros");
 //
@@ -39,11 +40,18 @@ const deleteItem = (req, res) => {
   const {itemId} = req.params;
   items
     .findByIdAndDelete(itemId)
-    .orFail()
-    .then((item) => res.status(204).send({}))
-    .catch((e) =>
-      res.status(DEFAULT_ERROR).send({ message: "error from deleteItem", e })
-    );
+    .then((item) => {
+      if (!item) {
+        return res.status(REQUEST_NOT_FOUND).send({ message: 'Item not found' });
+      }
+      res.status(200).send({ data: item });
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return res.status(BAD_REQUEST_STATUS_CODE).send({ message: 'Invalid ID format' });
+      }
+      res.status(DEFAULT_ERROR).send({ message: "Error from deleteItem", err });
+    });
 };
 const deleteLike = (req, res) => {
   items
@@ -51,7 +59,7 @@ const deleteLike = (req, res) => {
       { $pull: { likes: req.user._id } },
       { new: true },)
     .orFail()
-    .then((item) => res.status(204).send({}))
+    .then((item) => res.status(200).send({}))
     .catch((e) =>
       res.status(DEFAULT_ERROR).send({ message: "error from deleteLike", e })
     );
