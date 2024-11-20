@@ -52,6 +52,7 @@ const deleteItem = (req, res) => {
       }
       res.status(DEFAULT_ERROR).send({ message: "Error from deleteItem", err });
     });
+    console.log("Delete Item was success");
 };
 const deleteLike = (req, res) => {
   items
