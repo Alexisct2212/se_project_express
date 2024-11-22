@@ -1,8 +1,8 @@
-const user = require("../models/user");
+const User = require("../models/user");
 const { BAD_REQUEST_STATUS_CODE, DEFAULT_ERROR } = require("../utils/erros");
 //
 const getUsers = (req, res) => {
-  user
+   User
     .find({})
     .then((users) => res.status(200).send(users))
     .catch((err) => {
@@ -10,22 +10,23 @@ const getUsers = (req, res) => {
       res.status(DEFAULT_ERROR).send({ message: DEFAULT_ERROR.message });
     });
 };
-const CreateUser = (req, res) => {
+const createUser = (req, res) => {
   const { name, avatar } = req.body;
-  user
+   User
     .create({ name, avatar })
     .then((user) => res.status(201).send(user))
     .catch((err) => {
       console.log(err);
       if (err.name === "ValidatorError") {
-        return res.status(BAD_REQUEST_STATUS_CODE).send({ message: BAD_REQUEST_STATUS_CODE.message });
+        res.status(BAD_REQUEST_STATUS_CODE).send({ message: BAD_REQUEST_STATUS_CODE.message });
       }
       res.status(DEFAULT_ERROR.status).send({ message: DEFAULT_ERROR.message });
     });
 };
+
 const getUser = (req, res) => {
   const { _id } = req.params;
-  user
+  User
     .findById(_id)
     .then((user) => res.status(200).send(user))
     .catch((err) => {
@@ -39,4 +40,4 @@ const getUser = (req, res) => {
       return res.status(DEFAULT_ERROR).send({ message: DEFAULT_ERROR.message });
     });
 };
-module.exports = { getUser, getUsers, CreateUser };
+module.exports = { getUser, getUsers, createUser };
