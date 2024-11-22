@@ -1,5 +1,5 @@
 const user = require("../models/user");
-const { BAD_REQUEST_STATUS_CODE, REQUEST_NOT_FOUND, DEFAULT_ERROR } = require("../utils/erros");
+const { BAD_REQUEST_STATUS_CODE, DEFAULT_ERROR } = require("../utils/erros");
 //
 const getUsers = (req, res) => {
   user
@@ -18,9 +18,9 @@ const CreateUser = (req, res) => {
     .catch((err) => {
       console.log(err);
       if (err.name === "ValidatorError") {
-        return res.status(BAD_REQUEST_STATUS_CODE).send({ message: err.message });
+        return res.status(BAD_REQUEST_STATUS_CODE).send({ message: BAD_REQUEST_STATUS_CODE.message });
       }
-      return res.status(DEFAULT_ERROR).send({ message: err.message });
+      res.status(DEFAULT_ERROR.status).send({ message: DEFAULT_ERROR.message });
     });
 };
 const getUser = (req, res) => {
@@ -31,12 +31,12 @@ const getUser = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.message === "DocumentNotFoundError") {
-        return res.status(BAD_REQUEST_STATUS_CODE).send({ message: "User not found" });
+        return res.status(BAD_REQUEST_STATUS_CODE).send({ message: BAD_REQUEST_STATUS_CODE.message });
       }
       if (err.name === "CastError") {
-        return res.status(BAD_REQUEST_STATUS_CODE).send({ message: err.message });
+        return res.status(BAD_REQUEST_STATUS_CODE).send({ message: BAD_REQUEST_STATUS_CODE.message });
       }
-      return res.status(DEFAULT_ERROR).send({ message: err.message });
+      return res.status(DEFAULT_ERROR).send({ message: DEFAULT_ERROR.message });
     });
 };
 module.exports = { getUser, getUsers, CreateUser };
