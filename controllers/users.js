@@ -1,5 +1,5 @@
 const User = require("../models/user");
-const { BAD_REQUEST_STATUS_CODE, DEFAULT_ERROR } = require("../utils/erros");
+const { BAD_REQUEST_STATUS_CODE, DEFAULT_ERROR, REQUEST_NOT_FOUND } = require("../utils/erros");
 //
 const getUsers = (req, res) => {
    User
@@ -7,7 +7,7 @@ const getUsers = (req, res) => {
     .then((users) => res.status(200).send(users))
     .catch((err) => {
       console.log(err);
-      res.status(DEFAULT_ERROR).send({ message: DEFAULT_ERROR.message });
+      res.status(DEFAULT_ERROR.status).send({ message: DEFAULT_ERROR.message });
     });
 };
 const createUser = (req, res) => {
@@ -17,27 +17,28 @@ const createUser = (req, res) => {
     .then((user) => res.status(201).send(user))
     .catch((err) => {
       console.log(err);
-      if (err.name === "ValidatorError") {
-        res.status(BAD_REQUEST_STATUS_CODE).send({ message: BAD_REQUEST_STATUS_CODE.message });
+      if (err.name === "ValidationError") {
+        res.status(BAD_REQUEST_STATUS_CODE.status).send({ message: BAD_REQUEST_STATUS_CODE.message });
       }
       res.status(DEFAULT_ERROR.status).send({ message: DEFAULT_ERROR.message });
     });
 };
 
 const getUser = (req, res) => {
-  const { _id } = req.params;
+  const { userId } = req.params;
   User
-    .findById(_id)
+    .findById(userId)
+    .orFail()
     .then((user) => res.status(200).send(user))
     .catch((err) => {
       console.error(err);
-      if (err.message === "DocumentNotFoundError") {
-        return res.status(BAD_REQUEST_STATUS_CODE).send({ message: BAD_REQUEST_STATUS_CODE.message });
+      if (err.name === "DocumentNotFoundError") {
+        return res.status(REQUEST_NOT_FOUND.status).send({ message: REQUEST_NOT_FOUND.message });
       }
       if (err.name === "CastError") {
-        return res.status(BAD_REQUEST_STATUS_CODE).send({ message: BAD_REQUEST_STATUS_CODE.message });
+        return res.status(BAD_REQUEST_STATUS_CODE.status).send({ message: BAD_REQUEST_STATUS_CODE.message });
       }
-      return res.status(DEFAULT_ERROR).send({ message: DEFAULT_ERROR.message });
+      return res.status(DEFAULT_ERROR.status).send({ message: DEFAULT_ERROR.message });
     });
 };
 module.exports = { getUser, getUsers, createUser };
