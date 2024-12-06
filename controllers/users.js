@@ -1,9 +1,9 @@
 const User = require("../models/user");
-const { BAD_REQUEST_STATUS_CODE, DEFAULT_ERROR, REQUEST_NOT_FOUND } = require("../utils/erros");
+const { BAD_REQUEST_STATUS_CODE, DEFAULT_ERROR, REQUEST_NOT_FOUND,AUTHORIZATION_ERROR } = require("../utils/erros");
+const JWT_SECRET = require("../utils/config")
 
 const getUsers = (req, res) => {
-   User
-    .find({})
+   User.find({})
     .then((users) => res.status(200).send(users))
     .catch((err) => {
       console.log(err);
@@ -12,8 +12,7 @@ const getUsers = (req, res) => {
 };
 const createUser = (req, res) => {
   const { name, avatar,email,password } = req.body;
-   User
-    .create({ name, avatar, email, password })
+   User.create({ name, avatar, email, password })
     .then((user) => res.status(201).send(user))
     .catch((err) => {
       console.log(err);
@@ -28,8 +27,7 @@ const createUser = (req, res) => {
 
 const getUser = (req, res) => {
   const { userId } = req.params;
-  User
-    .findById(userId)
+  User.findById(userId)
     .orFail()
     .then((user) => res.status(200).send(user))
     .catch((err) => {
@@ -43,31 +41,60 @@ const getUser = (req, res) => {
       return res.status(DEFAULT_ERROR.status).send({ message: DEFAULT_ERROR.message });
     });
 };
-const login = (req,res)=>{
+const login = (req,res) => {
   const { email, password } = req.body;
 
-  User.findOne({ email })
+  if (!email || !password) {
+    return res
+      .status(BAD_REQUEST_STATUS_CODE.status)
+      .send({ message: "Email and password are required" });
+  }
+
+  return User.findUserByCredentials(email, password)
     .then((user) => {
-      if (!user) {
-        return Promise.reject(new Error('Incorrect email or password'));
-      }
-
-      return bcrypt.compare(password, user.password);
-    })
-    .then((matched) => {
-      if (!matched) {
-        // the hashes didn't match, rejecting the promise
-        return Promise.reject(new Error('Incorrect email or password'));
-      }
-
-      // authentication successful
-      res.send({ message: 'Everything good!' });
+      const token = jtw.sign({ _id: user._id }, JWT_SECRET, {
+        expiresIn: "7d",
+      });
+      res.send({ token });
     })
     .catch((err) => {
-      res
-        .status(401)
-        .send({ message: err.message });
+      console.error(err);
+      if (
+        err.message.includes("Incorrect email") ||
+        err.message.includes("Incorrect password")
+      ) {
+        return res
+          .status(AUTHORIZATION_ERROR.status)
+          .send({ message: AUTHORIZATION_ERROR.message });
+      }
+      return res
+        .status(DEFAULT_ERROR.status)
+        .send({ message: "Internal Server Error" });
     });
-
 };
-module.exports = { getUser, getUsers, createUser,login };
+const updateUser = (req, res) => {
+  const { name, avatar } = req.body;
+  User.findByIdAndUpdate(
+    req.user._id,
+    { name, avatar },
+    {
+      new: true,
+      runValidators: true,
+    },
+  )
+    .orFail()
+    .then(() => res.status(200).send({ name, avatar }))
+    .catch((err) => {
+      if (err.name === "ValidationError") {
+        return res.status(BAD_REQUEST_STATUS_CODE.status).send({ message: "Bad Request" });
+      }
+      if (err.name === "DocumentNotFoundError") {
+        return res.status(REQUEST_NOT_FOUND.status).send({ message: "Page Not Found" });
+      }
+
+      return res
+        .status(DEFAULT_ERROR)
+        .send({ message: "An error has occurred on the server" });
+    });
+};
+module.exports ={ getUser, getUsers, createUser,login,updateUser };

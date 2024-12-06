@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const {createItem,getItem,deleteItem,updateLike,deleteLike}= require("../controllers/clothingItems");
+
 // Router paths
 router.post("/", createItem);
 router.get("/", getItem);

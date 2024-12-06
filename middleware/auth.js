@@ -11,18 +11,16 @@ const auth = (req, res, next) => {
       .send({ message: AUTHORIZATION_ERROR.message });
   }
 
-  const token = authorization.replace('Bearer ', '');
-  let payload;
+  const token = authorization.replace('Bearer ', "");
 
   try {
-    payload = jwt.verify(token, JWT_SECRET);
+   const payload = jwt.verify(token, JWT_SECRET);
+    req.user = payload
   } catch (err) {
     return res
     .status(AUTHORIZATION_ERROR.status)
     .send({ message: AUTHORIZATION_ERROR.message });
   }
-
-  req.user = payload; // assigning the payload to the request object
 
   next(); // sending the request to the next middleware
 };
