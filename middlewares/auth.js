@@ -6,7 +6,7 @@ const auth = (req, res, next) => {
   const { authorization } = req.headers;
 
   if (!authorization || !authorization.startsWith('Bearer ')) {
-    return res
+     return res
       .status(AUTHORIZATION_ERROR.status)
       .send({ message: AUTHORIZATION_ERROR.message });
   }

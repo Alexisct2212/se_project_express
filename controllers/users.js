@@ -1,6 +1,8 @@
-const User = require("../models/user");
 const { BAD_REQUEST_STATUS_CODE, DEFAULT_ERROR, REQUEST_NOT_FOUND,AUTHORIZATION_ERROR } = require("../utils/erros");
-const JWT_SECRET = require("../utils/config")
+const {JWT_SECRET} = require("../utils/config");
+const jwt = require("../middlewares/auth");
+const User = require("../models/user");
+
 
 const getUsers = (req, res) => {
    User.find({})
@@ -52,7 +54,7 @@ const login = (req,res) => {
 
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jtw.sign({ _id: user._id }, JWT_SECRET, {
+      const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
         expiresIn: "7d",
       });
       res.send({ token });
