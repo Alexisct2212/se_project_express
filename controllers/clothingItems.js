@@ -11,9 +11,9 @@ const createItem = (req, res) => {
     })
     .catch((err) => {
       if (err.name === "ValidationError") {
-         res.status(BAD_REQUEST_STATUS_CODE.status).send({ message: BAD_REQUEST_STATUS_CODE.message });
+       res.status(BAD_REQUEST_STATUS_CODE.status).send({ message: BAD_REQUEST_STATUS_CODE.message });
       }
-      res.status(DEFAULT_ERROR.status).send({ message: DEFAULT_ERROR.message });
+      return res.status(DEFAULT_ERROR.status).send({ message: DEFAULT_ERROR.message });
     });
 };
 
@@ -39,27 +39,42 @@ const updateLike = (req, res) => {
       if (err.name === "DocumentNotFoundError") {
          res.status(REQUEST_NOT_FOUND.status).send({ message: REQUEST_NOT_FOUND.message });
       } if (err.name === "CastError") {
-         res.status(BAD_REQUEST_STATUS_CODE.status).send({ message: BAD_REQUEST_STATUS_CODE.message });
+        return res.status(BAD_REQUEST_STATUS_CODE.status).send({ message: BAD_REQUEST_STATUS_CODE.message });
       }
-      res.status(DEFAULT_ERROR.status).send({ message: DEFAULT_ERROR.message });
+      return res.status(DEFAULT_ERROR.status).send({ message: DEFAULT_ERROR.message });
     });
 };
 
 const deleteItem = (req, res) => {
   const { itemId } = req.params;
-   Items
-    .findByIdAndDelete(itemId)
+
+  Items.findById(itemId)
     .then((item) => {
       if (!item) {
-        res.status(REQUEST_NOT_FOUND.status).send({ message: REQUEST_NOT_FOUND.message });
+        return res
+          .status(REQUEST_NOT_FOUND.status)
+          .send({ message: REQUEST_NOT_FOUND.message });
       }
-      res.status(200).send({ data: item });
+
+      if (item.owner.toString() !== req.user._id) {
+        return res
+          .status(403)
+          .send({ message: "You are not authorized to delete this item" });
+      }
+
+      return item.deleteOne().then(() =>
+        res.status(200).send({ data: item })
+      );
     })
     .catch((err) => {
       if (err.name === "CastError") {
-         res.status(BAD_REQUEST_STATUS_CODE.status).send({ message: BAD_REQUEST_STATUS_CODE.message });
+        return res
+          .status(BAD_REQUEST_STATUS_CODE.status)
+          .send({ message: BAD_REQUEST_STATUS_CODE.message });
       }
-      res.status(DEFAULT_ERROR.status).send({ message: DEFAULT_ERROR.message });
+      return res
+        .status(DEFAULT_ERROR.status)
+        .send({ message: DEFAULT_ERROR.message });
     });
 };
 
@@ -74,11 +89,11 @@ const deleteLike = (req, res) => {
     .then((item) => res.status(200).send({ data: item }))
     .catch((err) => {
       if (err.name === "DocumentNotFoundError") {
-         res.status(REQUEST_NOT_FOUND.status).send({ message: REQUEST_NOT_FOUND.message });
+         return res.status(REQUEST_NOT_FOUND.status).send({ message: REQUEST_NOT_FOUND.message });
       } if (err.name === "CastError") {
-         res.status(BAD_REQUEST_STATUS_CODE.status).send({ message: BAD_REQUEST_STATUS_CODE.message });
+         return res.status(BAD_REQUEST_STATUS_CODE.status).send({ message: BAD_REQUEST_STATUS_CODE.message });
       }
-      res.status(DEFAULT_ERROR.status).send({ message: DEFAULT_ERROR.message });
+      return res.status(DEFAULT_ERROR.status).send({ message: DEFAULT_ERROR.message });
     });
 };
 

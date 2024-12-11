@@ -22,6 +22,6 @@ const auth = (req, res, next) => {
     .send({ message: AUTHORIZATION_ERROR.message });
   }
 
-  next(); // sending the request to the next middleware
+  return next(); // sending the request to the next middleware
 };
 module.exports = auth
