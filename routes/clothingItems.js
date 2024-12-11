@@ -3,9 +3,9 @@ const {createItem,getItem,deleteItem,updateLike,deleteLike}= require("../control
 const auth = require("../middlewares/auth");
 
 // Router paths
-router.post("/", createItem,auth);
-router.get("/", getItem,auth);
-router.delete("/:itemId", deleteItem,auth);
-router.delete("/:itemId/likes",deleteLike,auth);
-router.put("/:itemId/likes",updateLike,auth);
+router.post("/", auth,createItem);
+router.get("/", auth,getItem);
+router.delete("/:itemId",auth, deleteItem);
+router.delete("/:itemId/likes",auth,deleteLike);
+router.put("/:itemId/likes",auth, updateLike);
 module.exports = router;

@@ -1,25 +1,27 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
-const { BAD_REQUEST_STATUS_CODE, DEFAULT_ERROR, REQUEST_NOT_FOUND, AUTHORIZATION_ERROR } = require("../utils/erros");
+const { BAD_REQUEST_STATUS_CODE, DEFAULT_ERROR, REQUEST_NOT_FOUND, AUTHORIZATION_ERROR,DUPLICATE_ERROR } = require("../utils/erros");
 const { JWT_SECRET } = require("../utils/config");
 const User = require("../models/user");
 
 // Create a new user
 const createUser = (req, res) => {
   const { password } = req.body;
-
   // Hash the password before saving
   bcrypt
     .hash(password, 10)
+    .then((hashedPassword) =>
+      User.create({ name, avatar, email, password: hashedPassword }),
+    )
     .then((user) => {
-      // Exclude the password from the response
+      // Successful user creation
       const userData = { name: user.name, avatar: user.avatar, email: user.email, _id: user._id };
       res.status(201).send(userData);
     })
     .catch((err) => {
       if (err.code === 11000) {
         // Handle duplicate email error
-        return res.status(BAD_REQUEST_STATUS_CODE.status).send({ message:BAD_REQUEST_STATUS_CODE.message});
+        return res.status(DUPLICATE_ERROR.status).send({ message:DUPLICATE_ERROR.message});
       }
       if (err.name === "ValidationError") {
         return res.status(BAD_REQUEST_STATUS_CODE.status).send({ message: BAD_REQUEST_STATUS_CODE.message });

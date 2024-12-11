@@ -1,17 +1,17 @@
 const Items = require("../models/clothingItem");
-const { BAD_REQUEST_STATUS_CODE, REQUEST_NOT_FOUND, DEFAULT_ERROR } = require("../utils/erros");
+const { BAD_REQUEST_STATUS_CODE, REQUEST_NOT_FOUND, DEFAULT_ERROR,CONFLICT_ERROR } = require("../utils/erros");
 
 const createItem = (req, res) => {
   const { name, weather, imageUrl } = req.body;
     Items
-    .create({ name, weather, imageUrl })
+    .create({ name, weather, imageUrl,owner: req.user._id })
     .then((item) => {
       console.log(item);
       res.status(200).send({ data: item });
     })
     .catch((err) => {
       if (err.name === "ValidationError") {
-       res.status(BAD_REQUEST_STATUS_CODE.status).send({ message: BAD_REQUEST_STATUS_CODE.message });
+      return res.status(BAD_REQUEST_STATUS_CODE.status).send({ message: BAD_REQUEST_STATUS_CODE.message });
       }
       return res.status(DEFAULT_ERROR.status).send({ message: DEFAULT_ERROR.message });
     });
@@ -37,7 +37,7 @@ const updateLike = (req, res) => {
     .then((item) => res.status(200).send({ data: item }))
     .catch((err) => {
       if (err.name === "DocumentNotFoundError") {
-         res.status(REQUEST_NOT_FOUND.status).send({ message: REQUEST_NOT_FOUND.message });
+        return res.status(REQUEST_NOT_FOUND.status).send({ message: REQUEST_NOT_FOUND.message });
       } if (err.name === "CastError") {
         return res.status(BAD_REQUEST_STATUS_CODE.status).send({ message: BAD_REQUEST_STATUS_CODE.message });
       }
@@ -58,8 +58,8 @@ const deleteItem = (req, res) => {
 
       if (item.owner.toString() !== req.user._id) {
         return res
-          .status(403)
-          .send({ message: "You are not authorized to delete this item" });
+          .status(CONFLICT_ERROR.status)
+          .send({ message: CONFLICT_ERROR.message });
       }
 
       return item.deleteOne().then(() =>
