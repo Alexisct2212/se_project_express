@@ -6,16 +6,16 @@ const User = require("../models/user");
 
 // Create a new user
 const createUser = (req, res) => {
-  const { password } = req.body;
+  const { password,name,avatar,email } = req.body;
   // Hash the password before saving
   bcrypt
     .hash(password, 10)
     .then((hashedPassword) =>
-      User.create({ name: User.name, avatar: User.avatar, email: User.email, password: hashedPassword }),
+      User.create({ name, avatar, email, password: hashedPassword }),
     )
     .then((user) => {
       // Successful user creation
-      const userData = { name: user.name, avatar: user.avatar, email: user.email, _id: user._id };
+      const userData = { name, avatar, email, password, _id:user._id };
       res.status(201).send(userData);
     })
     .catch((err) => {
