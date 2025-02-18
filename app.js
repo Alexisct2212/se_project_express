@@ -7,7 +7,6 @@ require("dotenv").config();
 const app = express();
 
 const { PORT = 3001 } = process.env;
-
 const mainRouter = require('./routes/index');
 const supertest = require("supertest");
 const request = supertest(app)
@@ -20,6 +19,7 @@ mongoose.connect('mongodb://127.0.0.1:27017/wtwr_db').then(()=>{
 }).catch(console.error);
 
 // functions
+
 app.listen(PORT,()=>{
   console.log(`Server is running on port ${PORT}`)
 });

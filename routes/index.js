@@ -5,8 +5,6 @@ const { REQUEST_NOT_FOUND } = require("../utils/erros");
 const {login,createUser} = require("../controllers/users");
 const { celebrate, Joi } = require('celebrate');
 
-
-
 router.use("/users", userRouter,);
 router.use("/items",clothingRouter );
 router.post("/signin",celebrate({
@@ -15,6 +13,7 @@ router.post("/signin",celebrate({
     email:Joi.string().required().email(),
 
   }),}), login);
+
 router.post("/signup",celebrate({
   body: Joi.object().keys({
     password: Joi.string().required().min(2),
