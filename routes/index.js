@@ -3,7 +3,7 @@ const { celebrate, Joi } = require('celebrate');
 const userRouter = require('./users');
 const clothingRouter = require("./clothingItems");
 const {login,createUser} = require("../controllers/users");
-const { badRequestError } = require("../utils/centrilizedErros");
+const { badRequestError } = require("../utils/centralizedErros");
 
 router.use("/users", userRouter,);
 router.use("/items",clothingRouter );

@@ -1,5 +1,5 @@
 const Items = require("../models/clothingItem");
-const {badRequestError,unauthorizedError,notFoundError,internalServerError} =require("../utils/centrilizedErros")
+const {badRequestError,unauthorizedError,notFoundError,internalServerError} =require("../utils/centralizedErros")
 
 const createItem = (req, res) => {
   const { name, weather, imageUrl } = req.body;

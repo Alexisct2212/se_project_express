@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
-const {badRequestError,unauthorizedError,notFoundError,internalServerError, conflictError} =require("../utils/centrilizedErros")
+const {badRequestError,unauthorizedError,notFoundError,internalServerError, conflictError} =require("../utils/centralizedErros")
 const { JWT_SECRET } = require("../utils/config");
 const User = require("../models/user");
 
