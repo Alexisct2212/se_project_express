@@ -1,6 +1,12 @@
 const { Joi, celebrate } = require('celebrate');
 const validator = require('validator');
 
+const validateURL = (value, helpers) => {
+  if (validator.isURL(value)) {
+    return value;
+  }
+  return helpers.error('string.uri');
+}
 const validateClothing = celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30).messages({
@@ -64,10 +70,4 @@ const UserClothing = celebrate({
   }),
 });
 
-const validateURL = (value, helpers) => {
-  if (validator.isURL(value)) {
-    return value;
-  }
-  return helpers.error('string.uri');
-}
 module.exports = {UserClothing,validateUserLogin,validateClothing,createUserInfo}

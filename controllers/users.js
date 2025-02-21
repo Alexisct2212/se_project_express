@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
-const { BAD_REQUEST_STATUS_CODE, DEFAULT_ERROR, REQUEST_NOT_FOUND, AUTHORIZATION_ERROR,DUPLICATE_ERROR } = require("../utils/erros");
+const {badRequestError,unauthorizedError,notFoundError,internalServerError, conflictError} =require("../utils/centrilizedErros")
 const { JWT_SECRET } = require("../utils/config");
 const User = require("../models/user");
 
@@ -21,12 +21,12 @@ const createUser = (req, res) => {
     .catch((err) => {
       if (err.code === 11000) {
         // Handle duplicate email error
-        return res.status(DUPLICATE_ERROR.status).send({ message:DUPLICATE_ERROR.message});
+        return (conflictError("User with this email already exit"));
       }
       if (err.name === "ValidationError") {
-        return res.status(BAD_REQUEST_STATUS_CODE.status).send({ message: BAD_REQUEST_STATUS_CODE.message });
+        return (badRequestError('validation failed'));
       }
-      return res.status(DEFAULT_ERROR.status).send({ message: DEFAULT_ERROR.message });
+      return (internalServerError())
     });
 };
 
@@ -40,12 +40,12 @@ const getUser = (req, res) => {
     })
     .catch((err) => {
       if (err.name === "DocumentNotFoundError") {
-        return res.status(REQUEST_NOT_FOUND.status).send({ message: REQUEST_NOT_FOUND.message });
+        return (notFoundError("User Not Found"))
       }
       if (err.name === "CastError") {
-        return res.status(BAD_REQUEST_STATUS_CODE.status).send({ message: BAD_REQUEST_STATUS_CODE.message });
+        return (badRequestError("Wrong User ID"))
       }
-      return res.status(DEFAULT_ERROR.status).send({ message: DEFAULT_ERROR.message });
+      return (internalServerError())
     });
 };
 
@@ -53,7 +53,7 @@ const login = (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    return res.status(BAD_REQUEST_STATUS_CODE.status).send({ message: "Email and password are required" });
+    return (badRequestError("Email and password are required"));
   }
 
   return User.findUserByCredentials(email, password)
@@ -63,9 +63,9 @@ const login = (req, res) => {
     })
     .catch((err) => {
       if (err.message.includes("Incorrect email") || err.message.includes("Incorrect password")) {
-        return res.status(AUTHORIZATION_ERROR.status).send({ message: AUTHORIZATION_ERROR.message });
+        return (unauthorizedError("wrong password or email"))
       }
-      return res.status(DEFAULT_ERROR.status).send({ message: DEFAULT_ERROR.message });
+      return (internalServerError())
     });
 };
 
@@ -81,12 +81,12 @@ const updateUser = (req, res) => {
     .then((user) => res.status(200).send({ name: user.name, avatar: user.avatar }))
     .catch((err) => {
       if (err.name === "ValidationError") {
-        return res.status(BAD_REQUEST_STATUS_CODE.status).send({ message: BAD_REQUEST_STATUS_CODE.message });
+        return (badRequestError("validation Failed"));
       }
       if (err.name === "DocumentNotFoundError") {
-        return res.status(REQUEST_NOT_FOUND.status).send({ message: REQUEST_NOT_FOUND.message });
+        return (notFoundError("Invalid User"))
       }
-      return res.status(DEFAULT_ERROR.status).send({ message: DEFAULT_ERROR.message });
+      return (internalServerError())
     });
 };
 
