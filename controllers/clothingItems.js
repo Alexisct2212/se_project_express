@@ -1,5 +1,5 @@
 const Items = require("../models/clothingItem");
-const {badRequestError,unauthorizedError,notFoundError,internalServerError} =require("../utils/centralizedErros")
+const {badRequestError,unauthorizedError,notFoundError,internalServerError,forbiddenError} =require("../utils/centralizedErros")
 
 const createItem = (req, res,next) => {
   const { name, weather, imageUrl } = req.body;
@@ -65,7 +65,7 @@ const deleteItem = (req, res,next) => {
       }
 
       if (item.owner.toString() !== req.user._id) {
-        return next(unauthorizedError("Wrong user"))
+        return next(forbiddenError("Wrong user"))
       }
 
       return item.deleteOne().then(() =>
