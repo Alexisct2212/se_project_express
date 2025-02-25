@@ -5,7 +5,7 @@ const { JWT_SECRET } = require("../utils/config");
 const User = require("../models/user");
 
 // Create a new user
-const createUser = (req, res) => {
+const createUser = (req, res,next) => {
   const { password,name,avatar,email } = req.body;
   // Hash the password before saving
   bcrypt
@@ -15,22 +15,22 @@ const createUser = (req, res) => {
     )
     .then((user) => {
       // Successful user creation
-      const userData = { name, avatar, email, password, _id:user._id };
+      const userData = { name, avatar, email, _id:user._id };
       res.status(201).send(userData);
     })
     .catch((err) => {
       if (err.code === 11000) {
         // Handle duplicate email error
-        return (conflictError("User with this email already exit"));
+        return next(conflictError("User with this email already exit"));
       }
       if (err.name === "ValidationError") {
-        return (badRequestError('validation failed'));
+        return next(badRequestError('validation failed'));
       }
-      return (internalServerError())
+      return next(internalServerError())
     });
 };
 
-const getUser = (req, res) => {
+const getUser = (req, res,next) => {
   const userId = req.user._id;
 
   User.findById(userId)
@@ -40,20 +40,20 @@ const getUser = (req, res) => {
     })
     .catch((err) => {
       if (err.name === "DocumentNotFoundError") {
-        return (notFoundError("User Not Found"))
+        return next(notFoundError("User Not Found"))
       }
       if (err.name === "CastError") {
-        return (badRequestError("Wrong User ID"))
+        return next(badRequestError("Wrong User ID"))
       }
-      return (internalServerError())
+      return next(internalServerError())
     });
 };
 
-const login = (req, res) => {
+const login = (req, res,next) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    return (badRequestError("Email and password are required"));
+    return next(badRequestError("Email and password are required"));
   }
 
   return User.findUserByCredentials(email, password)
@@ -63,13 +63,13 @@ const login = (req, res) => {
     })
     .catch((err) => {
       if (err.message.includes("Incorrect email") || err.message.includes("Incorrect password")) {
-        return (unauthorizedError("wrong password or email"))
+        return next (unauthorizedError("wrong password or email"))
       }
-      return (internalServerError())
+      return next(internalServerError())
     });
 };
 
-const updateUser = (req, res) => {
+const updateUser = (req, res,next) => {
   const { name, avatar } = req.body;
 
   User.findByIdAndUpdate(
@@ -81,12 +81,12 @@ const updateUser = (req, res) => {
     .then((user) => res.status(200).send({ name: user.name, avatar: user.avatar }))
     .catch((err) => {
       if (err.name === "ValidationError") {
-        return (badRequestError("validation Failed"));
+        return next(badRequestError("validation Failed"));
       }
       if (err.name === "DocumentNotFoundError") {
-        return (notFoundError("Invalid User"))
+        return next(notFoundError("Invalid User"))
       }
-      return (internalServerError())
+      return next(internalServerError())
     });
 };
 

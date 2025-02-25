@@ -3,11 +3,11 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 require("dotenv").config();
 const helmet = require("helmet");
+const { errors } = require("celebrate");
 const rateLimiter = require("./middlewares/ratelimiter")
 
 const app = express();
 const { PORT = 3001 } = process.env;
-const { errors } = require("celebrate");
 const mainRouter = require("./routes/index");
 const { requestLogger, errorLogger } = require("./middlewares/logger");
 const {errorHandler}= require("./utils/centralizedErros")
@@ -19,16 +19,21 @@ mongoose
   })
   .catch(console.error);
 
+app.get('/crash-test', () => {
+  setTimeout(() => {
+    throw new Error('Server will crash now');
+  }, 0);
+});
 // functions
 app.use(helmet());
 app.use(rateLimiter)
-app.use(errorHandler);
 app.use(cors());
 app.use(express.json());
 app.use(requestLogger);
 app.use("/", mainRouter);
 app.use(errorLogger);
 app.use(errors());
+app.use(errorHandler);
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

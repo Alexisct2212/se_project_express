@@ -1,7 +1,7 @@
 const Items = require("../models/clothingItem");
 const {badRequestError,unauthorizedError,notFoundError,internalServerError} =require("../utils/centralizedErros")
 
-const createItem = (req, res) => {
+const createItem = (req, res,next) => {
   const { name, weather, imageUrl } = req.body;
     Items
     .create({ name, weather, imageUrl,owner: req.user._id })
@@ -11,28 +11,28 @@ const createItem = (req, res) => {
     })
     .catch((err) => {
       if (err.name === "ValidationError") {
-        return (badRequestError("Wrong Input Field"));
+        return next(badRequestError("Wrong Input Field"));
       }
-      return (internalServerError());
+      return next(internalServerError());
     });
 };
 
-const getItem = (req, res) => {
+const getItem = (req, res,next) => {
    Items
     .find({})
     .then((items) => res.status(200).send(items))
     .catch((err) => {
       if (err.name === "DocumentNotFoundError") {
-        return (notFoundError("User Not Found"))
+        return next(notFoundError("User Not Found"))
       }
       if (err.name === "CastError") {
-        return (badRequestError("Wrong User ID"))
+        return next(badRequestError("Wrong User ID"))
       }
-      return (internalServerError())
+      return next(internalServerError())
     });
 };
 
-const updateLike = (req, res) => {
+const updateLike = (req, res,next) => {
   Items
     .findByIdAndUpdate(
       req.params.itemId,
@@ -43,29 +43,29 @@ const updateLike = (req, res) => {
     .then((item) => res.status(200).send({ data: item }))
     .catch((err) => {
       if (err.name === "DocumentNotFoundError") {
-        return (notFoundError())
+        return next(notFoundError())
       }
       if (Items.owner.toString() !== req.user._id) {
-        return (unauthorizedError("Wrong user"))
+        return next(unauthorizedError("Wrong user"))
       }
       if (err.name === "CastError") {
-        return (badRequestError())
+        return next(badRequestError())
       }
-      return (internalServerError());
+      return next(internalServerError());
         });
 };
 
-const deleteItem = (req, res) => {
+const deleteItem = (req, res,next) => {
   const { itemId } = req.params;
 
   Items.findById(itemId)
     .then((item) => {
       if (!item) {
-        return (notFoundError())
+        return next(notFoundError())
       }
 
       if (item.owner.toString() !== req.user._id) {
-        return (unauthorizedError("Wrong user"))
+        return next(unauthorizedError("Wrong user"))
       }
 
       return item.deleteOne().then(() =>
@@ -74,13 +74,13 @@ const deleteItem = (req, res) => {
     })
     .catch((err) => {
       if (err.name === "CastError") {
-        return (badRequestError());
+        return next (badRequestError());
       }
-      return (internalServerError());
+      return next(internalServerError());
     });
 };
 
-const deleteLike = (req, res) => {
+const deleteLike = (req, res, next) => {
    Items
     .findByIdAndUpdate(
       req.params.itemId,
@@ -91,11 +91,11 @@ const deleteLike = (req, res) => {
     .then((item) => res.status(200).send({ data: item }))
     .catch((err) => {
       if (err.name === "DocumentNotFoundError") {
-        return (notFoundError());
+        return next(notFoundError());
       } if (err.name === "CastError") {
-        return (badRequestError());
+        return next(badRequestError());
       }
-      return (internalServerError());
+      return next(internalServerError());
     });
 };
 

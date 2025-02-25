@@ -7,7 +7,7 @@ const auth = (req, res, next) => {
   const { authorization } = req.headers;
 
   if (!authorization || !authorization.startsWith('Bearer ')) {
-     return (unauthorizedError("access Unauthorized"));
+     return next(unauthorizedError("access Unauthorized"));
   }
 
   const token = authorization.replace('Bearer ', "");
@@ -16,7 +16,7 @@ const auth = (req, res, next) => {
    const payload = jwt.verify(token, JWT_SECRET);
     req.user = payload
   } catch (err) {
-    return (unauthorizedError("access Unauthorized"));
+    return next(unauthorizedError("access Unauthorized"));
   }
 
   return next(); // sending the request to the next middleware

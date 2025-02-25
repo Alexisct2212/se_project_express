@@ -3,10 +3,12 @@ const { celebrate, Joi } = require('celebrate');
 const userRouter = require('./users');
 const clothingRouter = require("./clothingItems");
 const {login,createUser} = require("../controllers/users");
-const { badRequestError } = require("../utils/centralizedErros");
+const { notFoundError } = require("../utils/centralizedErros");
 
 router.use("/users", userRouter,);
+
 router.use("/items",clothingRouter );
+
 
 router.post("/signin",celebrate({
   body: Joi.object().keys({
@@ -24,8 +26,7 @@ router.post("/signup",celebrate({
   }),}), createUser);
 
 
-router.use((req, res) => {
-   res (badRequestError());
-});
-
+  router.use((req, res, next) => {
+    next(notFoundError());
+  });
 module.exports =router;
